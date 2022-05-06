@@ -4,3 +4,18 @@
 # @File : test2
 # @Project : PytorchMario
 # test file
+print('123')
+print('123')
+print('123')
+print('123')
+
+
+
+
+
+
+
+
+
+
+
