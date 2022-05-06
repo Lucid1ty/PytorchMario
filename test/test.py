@@ -3,13 +3,13 @@
 # @Author : Cosmica
 # @File : test
 # @Project : PytorchMario
+import math
+
 import torch
-print(torch.cuda.is_available())
 
 
+# 其中cfg表示训练过程中的参数，env表示训练的交互环境，agent表示一个DQN的类对象
 def train(cfg, env, agent):
-    ''' 训练
-    '''
     print('开始训练!')
     print(f'环境：{cfg.env_name}, 算法：{cfg.algo_name}, 设备：{cfg.device}')
     rewards = []  # 记录所有回合的奖励
@@ -38,6 +38,9 @@ def train(cfg, env, agent):
     env.close()
     return rewards, ma_rewards
 
+
+if __name__ == '__main__':
+    print(torch.cuda.is_available())
 
 
 
