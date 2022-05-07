@@ -160,6 +160,7 @@ class Mario:
 class Mario(Mario):  # subclassing for continuity
     def __init__(self, state_dim, action_dim, save_dir):
         super().__init__(state_dim, action_dim, save_dir)
+        self.gamma = 0.9
         self.memory = deque(maxlen=100000)
         self.batch_size = 32
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.00025)
@@ -251,6 +252,21 @@ class Mario(Mario):  # subclassing for continuity
         loss = self.update_Q_online(td_est, td_tgt)
 
         return (td_est.mean().item(), loss)
+
+    def td_estimate(self, state, action):
+        current_Q = self.net(state, model="online")[
+            np.arange(0, self.batch_size), action
+        ]  # Q_online(s,a)
+        return current_Q
+
+    @torch.no_grad()
+    def td_target(self, reward, next_state, done):
+        next_state_Q = self.net(next_state, model="online")
+        best_action = torch.argmax(next_state_Q, axis=1)
+        next_Q = self.net(next_state, model="target")[
+            np.arange(0, self.batch_size), best_action
+        ]
+        return (reward + (1 - done.float()) * self.gamma * next_Q).float()
 
 
 # Learn
@@ -410,7 +426,7 @@ if __name__ == '__main__':
 
     logger = MetricLogger(save_dir)
 
-    episodes = 10
+    episodes = 40000
     for e in range(episodes):
 
         state = env.reset()
@@ -444,3 +460,4 @@ if __name__ == '__main__':
 
         if e % 20 == 0:
             logger.record(episode=e, epsilon=mario.exploration_rate, step=mario.curr_step)
+    print("Complete!")
